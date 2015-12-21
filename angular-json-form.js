@@ -7,11 +7,11 @@
         .constant('jsonConfig', {
             name: 'JSON示例'
         })
-        .directive('jsonForm', ['jsonConfig', function (jsonConfig) {
+        .directive('jsonExample', ['jsonConfig', function (jsonConfig) {
             return {
                 restrict: 'E',
                 replace: true,
-                templateUrl: 'template/jsonForm.html',
+                templateUrl: 'scripts/public/template/jsonExample.html',
                 scope: {},
                 require: 'ngModel',
                 link: function (scope, element, attrs, ngModel) {
@@ -30,30 +30,29 @@
                             return null;
                         } else {
                             var example = JSON.parse(json);
-                            return syntaxHighlight(example, 0);
+                            return reverse(reverse(syntaxHighlight(example, 0)).replace(",", ''));
                         }
                     }
 
                     function syntaxHighlight(example, level, name) {
                         if (!example) {
                             if (name) {
-                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="null">' + 'null' + '</span>' + '</div>';
+                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="null">' + 'null,' + '</span>' + '</div>';
                             }
                         }
-                        name = name ? name : '   ';
                         if (typeof example == 'string') {
                             if (name) {
-                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="string">' + example + '</span>' + '</div>';
+                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="string">' + example + ',</span>' + '</div>';
                             }
                         }
                         if (typeof example == 'number') {
                             if (name) {
-                                return '<div>' + getBlank(level) + name + ' : ' + '<span>' + example + '</span>' + '</div>';
+                                return '<div>' + getBlank(level) + name + ' : ' + '<span>' + example + ',</span>' + '</div>';
                             }
                         }
                         if (typeof example == 'boolean') {
                             if (name) {
-                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="boolean">' + example + '</span>' + '</div>';
+                                return '<div>' + getBlank(level) + name + ' : ' + '<span class="boolean">' + example + ',</span>' + '</div>';
                             }
                         }
                         if (Array.isArray(example)) {
@@ -62,21 +61,28 @@
                                 result += '<div>' + getBlank(level) + name + ' :[ ]' + '</div>';
                             } else {
                                 result += '<div>' + getBlank(level) + name + ' :[' + '</div>';
-                                var temp = level;
                                 for (var i = 0, ii = example.length; i < ii; i++) {
-                                    result += syntaxHighlight(example[i], ++temp, i);
+                                    (function () {
+                                        result += syntaxHighlight(example[i], level + 1);
+                                    })(i);
                                 }
+                                result = reverse(reverse(result).replace(",", ''));
                                 result += '<div>' + getBlank(level) + ' ]' + '</div>';
                             }
+
                             return result;
                         }
                         if (typeof example == 'object') {
-                            var result = '<div>' + getBlank(level) + '{' + '</div>';
-                            for (var pro in example) {
-                                var temp = level;
-                                result += syntaxHighlight(example[pro], ++temp, pro);
+                            if (name) {
+                                var result = '<div>' + getBlank(level) + name + ' : ' + '{' + '</div>';
+                            } else {
+                                var result = '<div>' + getBlank(level) + '{' + '</div>';
                             }
-                            result += '<div>' + getBlank(level) + '}</div>';
+                            for (var pro in example) {
+                                result += syntaxHighlight(example[pro], level + 1, pro);
+                            }
+                            result = reverse(reverse(result).replace(",", ''));
+                            result += '<div>' + getBlank(level) + '},</div>';
                             return result;
                         }
                     }
@@ -89,6 +95,10 @@
                             }
                         }
                         return result;
+                    }
+
+                    function reverse(s) {
+                        return s.split("").reverse().join("");
                     }
                 }
             }
