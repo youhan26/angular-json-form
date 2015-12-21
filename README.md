@@ -10,3 +10,7 @@ generator json form using json data
 
 ## License
 Released under the [MIT license](http://www.opensource.org/licenses/MIT).
+
+##TODO
+json validate...
+exception handle...
